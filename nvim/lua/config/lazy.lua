@@ -14,7 +14,15 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
 end
 vim.opt.rtp:prepend(lazypath)
 
+local state = vim.fn.stdpath("state")
+local lockfile = state .. "/lazy-lock.json"
+if not vim.uv.fs_stat(lockfile) then
+  vim.fn.mkdir(state, "p")
+  assert(vim.uv.fs_copyfile(vim.fn.stdpath("config") .. "/lazy-lock.json", lockfile))
+end
+
 require("lazy").setup({
+  lockfile = lockfile,
   spec = {
     -- add LazyVim and import its plugins
     { "LazyVim/LazyVim", import = "lazyvim.plugins" },
